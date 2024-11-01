@@ -23,5 +23,5 @@ type Stock struct {
 
 // Make table name from default "stocks" to "stock"
 func (detail *Stock) TableName() string {
-	return "stock"
+	return "stock_ipo"
 }

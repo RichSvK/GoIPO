@@ -48,7 +48,7 @@ func (repository *StockRepositoryImpl) FindByValue(ctx context.Context, value in
 	if underwriter != "ALL" {
 		db = db.Joins("JOIN (SELECT s.stock_code AS stock_code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock FROM ipo_detail ids JOIN stock s ON s.stock_code = ids.stock_code WHERE uw_code = ?) ts ON ts.stock_code = id.stock_code", underwriter)
 	} else {
-		db = db.Joins("JOIN stock s ON id.stock_code = s.stock_code")
+		db = db.Joins("JOIN stock_ipo s ON id.stock_code = s.stock_code")
 	}
 
 	query := "id.stock_code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock, GROUP_CONCAT(uw_code) AS all_underwriter, GROUP_CONCAT(uw_shares) AS all_shares, (price * ipo_shares) AS amount"

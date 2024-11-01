@@ -1,0 +1,4 @@
+Stock Code,price,IPO Shares,Listed Shares,Equity,Warrant,Nominal,MCB,Is Affiliated,Is Acceleration,Is New,Lock Up,Subscribed Stock,All UW,Amount
+ARKO,300,579900000,2899500000,165000000000,0,25,0,true,false,true,1,1440755400,"{YJ : 44.54%, YP : 55.46%}",173970000000
+ASHA,100,1250000000,5000000000,30665810483,0,20,0,false,false,true,1,11001847700,"{BQ : 28.57%, HD : 71.43%}",125000000000
+STRK,100,1180000000,10721709000,47628929487,"4 : 11",12,0,false,false,true,1,31351707700,"{FZ : 10.20%, HD : 27.10%, PG : 10.20%, SH : 52.50%}",118000000000
