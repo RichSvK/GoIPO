@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"path/filepath"
 )
 
 func InsertMenu() {
@@ -32,14 +33,17 @@ func InsertMenu() {
 
 	switch choice {
 	case 1:
+		var path = filepath.Join("data", "stock");
 		stockService := services.NewStockService(repository.NewStockRepository())
-		stockService.InsertStock(GetInsertFilePath("data\\stock\\", "Menu Insert IPO Stock"))
+		stockService.InsertStock(GetInsertFilePath(path, "Menu Insert IPO Stock"))
 	case 2:
+		var path = filepath.Join("data", "broker");
 		brokerService := services.NewBrokerService(repository.NewBrokerRepository())
-		brokerService.InsertBroker(GetInsertFilePath("data\\broker\\", "Menu Insert Underwriter"))
+		brokerService.InsertBroker(GetInsertFilePath(path, "Menu Insert Underwriter"))
 	case 3:
+		var path = filepath.Join("data", "detail");
 		detailService := services.NewDetailService(repository.NewDetailRepository())
-		detailService.InsertDetail(GetInsertFilePath("data\\detail\\", "Menu Insert IPO Detail"))
+		detailService.InsertDetail(GetInsertFilePath(path, "Menu Insert IPO Detail"))
 	case 4:
 		return
 	}
