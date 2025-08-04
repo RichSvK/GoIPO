@@ -32,6 +32,7 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 	if fileName == "" {
 		return
 	}
+
 	file, err := os.OpenFile(fileName, os.O_RDONLY, 0444)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -52,6 +53,7 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 	var stock = entity.Stock{}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
+
 	for {
 		result, _, err = reader.ReadLine()
 		if err == io.EOF {
@@ -59,6 +61,7 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 		}
 
 		stock = helpers.SplitStockString(result)
+
 		err := service.Stock_Repository.Save(ctx, stock)
 		if err != nil {
 			fmt.Println("Error insert stock data")
