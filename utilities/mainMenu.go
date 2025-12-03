@@ -8,7 +8,7 @@ import (
 
 func MainMenu() int {
 	choiceString := ""
-	var err error = nil
+	var err error
 	choice := 0
 
 	for {

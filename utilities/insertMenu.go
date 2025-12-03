@@ -5,15 +5,15 @@ import (
 	"IPO/repository"
 	"IPO/services"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"path/filepath"
 )
 
 func InsertMenu() {
 	userChoice := ""
 	choice := 0
-	var err error = nil
+	var err error
 	for {
 		helpers.ClearScreen()
 		fmt.Println("Insert Menu")
@@ -33,15 +33,15 @@ func InsertMenu() {
 
 	switch choice {
 	case 1:
-		var path = filepath.Join("data", "stock");
+		var path = filepath.Join("data", "stock")
 		stockService := services.NewStockService(repository.NewStockRepository())
 		stockService.InsertStock(GetInsertFilePath(path, "Menu Insert IPO Stock"))
 	case 2:
-		var path = filepath.Join("data", "broker");
+		var path = filepath.Join("data", "broker")
 		brokerService := services.NewBrokerService(repository.NewBrokerRepository())
 		brokerService.InsertBroker(GetInsertFilePath(path, "Menu Insert Underwriter"))
 	case 3:
-		var path = filepath.Join("data", "detail");
+		var path = filepath.Join("data", "detail")
 		detailService := services.NewDetailService(repository.NewDetailRepository())
 		detailService.InsertDetail(GetInsertFilePath(path, "Menu Insert IPO Detail"))
 	case 4:
@@ -60,15 +60,14 @@ func GetInsertFilePath(folderName string, menu string) string {
 		return ""
 	}
 
-	var size int = len(fileList)
-	var tempName []string = nil
+	size := len(fileList)
 	for i := 0; i < size; i++ {
-		tempName = strings.Split(fileList[i], folderName)
+		tempName := strings.Split(fileList[i], folderName)
 		fmt.Printf("%d. %s from %s\n", (i + 1), tempName[1], fileList[i])
 	}
 
-	var choice int = 0
-	var userInput string = ""
+	var choice int
+	var userInput string
 	promptString := fmt.Sprintf("Input [1 - %d] [Type 0 to return]: ", size)
 	for {
 		userInput = helpers.ScanInput(promptString)

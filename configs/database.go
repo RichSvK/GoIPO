@@ -15,7 +15,7 @@ var PoolDB *gorm.DB = nil
 var SqlDB *sql.DB = nil
 
 func OpenConnection() {
-	var err error = nil
+	var err error
 	dsn := os.Getenv("DB_SOURCE")
 	PoolDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger:                 logger.Default.LogMode(logger.Info),

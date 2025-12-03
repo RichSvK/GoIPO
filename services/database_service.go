@@ -17,15 +17,26 @@ func CreateDatabaseTable() {
 
 func DeleteTable() {
 	db := configs.PoolDB
-	db.Migrator().DropTable(&entity.IPO_Detail{})
-	db.Migrator().DropTable(&entity.Stock{})
-	db.Migrator().DropTable(&entity.Broker{})
+
+	tables := []interface{}{
+		&entity.IPO_Detail{},
+		&entity.Stock{},
+		&entity.Broker{},
+	}
+
+	for _, table := range tables {
+		if err := db.Migrator().DropTable(table); err != nil {
+			fmt.Printf("Failed to drop %T: %v\n", table, err)
+			return
+		}
+	}
+
 	fmt.Println("Success Drop Table")
 }
 
 func ClearTable() {
 	TruncateTable("ipo_detail")
-	TruncateTable("stock")
+	TruncateTable("stock_ipo")
 	TruncateTable("broker_underwriter")
 	fmt.Println("Success Truncate Table")
 }

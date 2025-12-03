@@ -2,7 +2,6 @@ package services
 
 import (
 	"IPO/helpers"
-	"IPO/models/entity"
 	"IPO/repository"
 	"bufio"
 	"context"
@@ -36,7 +35,12 @@ func (service *IpoDetailServiceImpl) InsertDetail(fileName string) {
 		fmt.Println(err.Error())
 		return
 	}
-	defer file.Close()
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Println("Error opening file:", err)
+		}
+	}()
 
 	reader := bufio.NewReader(file)
 
@@ -47,18 +51,16 @@ func (service *IpoDetailServiceImpl) InsertDetail(fileName string) {
 		return
 	}
 
-	var result []byte = nil
-	var detail = entity.IPO_Detail{}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	for {
-		result, _, err = reader.ReadLine()
+		result, _, err := reader.ReadLine()
 		if err == io.EOF {
 			break
 		}
 
-		detail = helpers.SplitDetailString(result)
-		err := service.IpoDetailRepository.Save(ctx, detail)
+		detail := helpers.SplitDetailString(result)
+		err = service.IpoDetailRepository.Save(ctx, detail)
 		if err != nil {
 			fmt.Println("Error insert IPO detail")
 			return

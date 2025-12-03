@@ -14,7 +14,11 @@ func init() {
 }
 
 func main() {
-	defer configs.SqlDB.Close()
+	defer func() {
+		if err := configs.SqlDB.Close(); err != nil {
+			fmt.Println("Error closing database connection:", err)
+		}
+	}()
 
 	choice := 0
 	for {

@@ -32,7 +32,7 @@ func (repository *StockRepositoryImpl) FindByUnderwriter(ctx context.Context, un
 	err := db.WithContext(ctx).
 		Table("ipo_detail id").
 		Select("sub.code AS stock_code, GROUP_CONCAT(id.uw_code) AS all_underwriter, GROUP_CONCAT(uw_shares) AS all_shares, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock, amount").
-		Joins("JOIN (SELECT s.stock_code AS code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock, (price * ipo_shares) AS amount, CAST(uw_shares / ipo_shares AS FLOAT) AS percentage FROM stock s JOIN ipo_detail ids ON s.stock_code = ids.stock_code WHERE ids.uw_code = ?) AS sub ON sub.code = id.stock_code", underwriter).
+		Joins("JOIN (SELECT s.stock_code AS code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock, (price * ipo_shares) AS amount, CAST(uw_shares / ipo_shares AS FLOAT) AS percentage FROM stock_ipo s JOIN ipo_detail ids ON s.stock_code = ids.stock_code WHERE ids.uw_code = ?) AS sub ON sub.code = id.stock_code", underwriter).
 		Group("sub.code, percentage").
 		Order("percentage DESC").
 		Scan(&listStock).
@@ -43,7 +43,6 @@ func (repository *StockRepositoryImpl) FindByUnderwriter(ctx context.Context, un
 
 func (repository *StockRepositoryImpl) FindByValue(ctx context.Context, value int, underwriter string) ([]response.StockResponse, error) {
 	listStock := []response.StockResponse{}
-	var err error = nil
 	db := configs.PoolDB
 	if underwriter != "ALL" {
 		db = db.Joins("JOIN (SELECT s.stock_code AS stock_code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock FROM ipo_detail ids JOIN stock s ON s.stock_code = ids.stock_code WHERE uw_code = ?) ts ON ts.stock_code = id.stock_code", underwriter)
@@ -52,7 +51,7 @@ func (repository *StockRepositoryImpl) FindByValue(ctx context.Context, value in
 	}
 
 	query := "id.stock_code, price, ipo_shares, listed_shares, equity, warrant, nominal, mcb, is_affiliated, is_acceleration, is_new, lock_up, subscribed_stock, GROUP_CONCAT(uw_code) AS all_underwriter, GROUP_CONCAT(uw_shares) AS all_shares, (price * ipo_shares) AS amount"
-	err = db.Table("ipo_detail id").
+	err := db.Table("ipo_detail id").
 		WithContext(ctx).
 		Select(query).
 		Where(helpers.GetAmountCondition(value)).

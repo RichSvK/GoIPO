@@ -11,7 +11,7 @@ import (
 func ExportMenu() {
 	userChoice := ""
 	choice := 0
-	var err error = nil
+	var err error
 	for {
 		helpers.ClearScreen()
 		fmt.Println("Export Menu")
@@ -39,30 +39,20 @@ func ExportByUW_Menu() {
 	helpers.ClearScreen()
 	fmt.Println("Export By Underwriter Menu")
 
-	var underwriter string = ""
-	var inputLength int = 0
-	valid := true
+	underwriter := ""
 	for {
 		underwriter = helpers.ScanInput("Type UW Code [2 Character and Uppercase][Type 0 to Return]: ")
-		inputLength = len(underwriter)
-
-		if inputLength != 2 {
-			if underwriter == "0" {
-				return
-			}
-			fmt.Println("UW Code must be 2 character")
-			valid = false
-		} else {
-			valid = true
-			for i := 0; i < inputLength; i++ {
-				if underwriter[i] < 'A' || underwriter[i] > 'Z' {
-					valid = false
-					break
-				}
-			}
+		if underwriter == "0" {
+			return
 		}
 
-		if valid {
+		if len(underwriter) != 2 {
+			fmt.Println("UW Code must be 2 characters")
+			continue
+		}
+
+		if underwriter[0] >= 'A' && underwriter[0] <= 'Z' &&
+			underwriter[1] >= 'A' && underwriter[1] <= 'Z' {
 			break
 		}
 	}
@@ -72,9 +62,9 @@ func ExportByUW_Menu() {
 }
 
 func ExportByAmmount_Menu() {
-	var valueChoice string = ""
-	var value int = 0
-	var err error = nil
+	var valueChoice string
+	var value int
+	var err error
 	for {
 		helpers.ClearScreen()
 		fmt.Println("Export By Ammount Menu")

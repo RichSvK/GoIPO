@@ -8,7 +8,7 @@ import (
 
 func SplitStockString(result []byte) entity.Stock {
 	var stock entity.Stock
-	var temp uint64 = 0
+	var temp uint64
 	stockData := strings.Split(string(result), ",")
 	stock.StockCode = stockData[0]
 

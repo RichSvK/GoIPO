@@ -10,7 +10,7 @@ import (
 func DatabaseMenu() {
 	userChoice := ""
 	choice := 0
-	var err error = nil
+	var err error
 	for {
 		helpers.ClearScreen()
 		fmt.Println("Database Menu")

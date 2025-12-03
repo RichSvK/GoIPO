@@ -21,7 +21,7 @@ type Stock struct {
 	Detail []IPO_Detail `gorm:"foreignKey:stock_code;references:stock_code"`
 }
 
-// Make table name from default "stocks" to "stock"
+// Make table name from default "stocks" to "stock_ipo"
 func (detail *Stock) TableName() string {
 	return "stock_ipo"
 }
