@@ -6,10 +6,11 @@ import (
 	"strings"
 )
 
-func SplitStockString(result []byte) entity.Stock {
+func SplitStockString(result string) entity.Stock {
 	var stock entity.Stock
 	var temp uint64
-	stockData := strings.Split(string(result), ",")
+
+	stockData := strings.Split(result, ";")
 	stock.StockCode = stockData[0]
 
 	temp, _ = strconv.ParseUint(stockData[1], 10, 32)
@@ -42,9 +43,10 @@ func SplitBrokerString(result []byte) entity.Broker {
 	return broker
 }
 
-func SplitDetailString(result []byte) entity.IPO_Detail {
+func SplitDetailString(result string) entity.IPO_Detail {
 	var detail entity.IPO_Detail
-	detailData := strings.Split(string(result), ",")
+	detailData := strings.Split(result, ";")
+
 	detail.StockCode = detailData[0]
 	detail.UW_Code = detailData[1]
 	temp, _ := strconv.ParseUint(detailData[2], 10, 64)

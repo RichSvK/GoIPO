@@ -5,6 +5,7 @@ import (
 	"IPO/repository"
 	"bufio"
 	"context"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -37,6 +38,7 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 		fmt.Println(err.Error())
 		return
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			fmt.Println("Error closing file:", err)
@@ -44,11 +46,14 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 	}()
 
 	reader := bufio.NewReader(file)
+	csvReader := csv.NewReader(reader)
+	csvReader.FieldsPerRecord = -1
 
-	// Remove Header
-	_, _, err = reader.ReadLine()
-	if err != nil {
-		fmt.Println(err.Error())
+	// read & ignore header
+	if _, err := csvReader.Read(); err != nil {
+		if err == io.EOF {
+			return
+		}
 		return
 	}
 
@@ -56,19 +61,23 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 	defer cancel()
 
 	for {
-		result, _, err := reader.ReadLine()
+		record, err := csvReader.Read()
 		if err == io.EOF {
 			break
 		}
-
-		stock := helpers.SplitStockString(result)
-
-		err = service.Stock_Repository.Save(ctx, stock)
 		if err != nil {
-			fmt.Println("Error insert stock data")
+			fmt.Println("csv read error:", err)
+			return
+		}
+
+		stock := helpers.SplitStockString(record[0])
+
+		if err := service.Stock_Repository.Save(ctx, stock); err != nil {
+			fmt.Println("Error insert stock data:", err)
 			return
 		}
 	}
+
 	fmt.Println("Success Insert Data")
 }
 

@@ -82,5 +82,6 @@ func GetInsertFilePath(folderName string, menu string) string {
 	if choice == 0 {
 		return ""
 	}
+
 	return fileList[choice-1]
 }
