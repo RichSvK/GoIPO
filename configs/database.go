@@ -16,7 +16,15 @@ var SqlDB *sql.DB = nil
 
 func OpenConnection() {
 	var err error
-	dsn := os.Getenv("DB_SOURCE")
+
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
+
 	PoolDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger:                 logger.Default.LogMode(logger.Info),
 		PrepareStmt:            true,

@@ -5,6 +5,7 @@ import (
 	"IPO/repository"
 	"bufio"
 	"context"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -43,28 +44,37 @@ func (service *IpoDetailServiceImpl) InsertDetail(fileName string) {
 	}()
 
 	reader := bufio.NewReader(file)
+	csvReader := csv.NewReader(reader)
+	csvReader.FieldsPerRecord = -1
 
-	// Remove header
-	_, _, err = reader.ReadLine()
-	if err != nil {
-		fmt.Println(err.Error())
+	// read & ignore header
+	if _, err := csvReader.Read(); err != nil {
+		if err == io.EOF {
+			return
+		}
 		return
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
+
 	for {
-		result, _, err := reader.ReadLine()
+		record, err := csvReader.Read()
 		if err == io.EOF {
 			break
 		}
-
-		detail := helpers.SplitDetailString(result)
-		err = service.IpoDetailRepository.Save(ctx, detail)
 		if err != nil {
-			fmt.Println("Error insert IPO detail")
+			fmt.Println("csv read error:", err)
+			return
+		}
+
+		detail := helpers.SplitDetailString(record)
+
+		if err := service.IpoDetailRepository.Save(ctx, detail); err != nil {
+			fmt.Println("Error insert IPO detail:", err)
 			return
 		}
 	}
+
 	fmt.Println("Success Insert IPO Detail Data")
 }

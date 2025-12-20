@@ -10,6 +10,7 @@ import (
 
 type StockRepository interface {
 	Save(ctx context.Context, stock entity.Stock) error
+	SaveBatch(ctx context.Context, stockList []entity.Stock) error
 	FindByUnderwriter(ctx context.Context, underwriter string) ([]response.StockResponse, error)
 	FindByValue(ctx context.Context, value int, underwriter string) ([]response.StockResponse, error)
 }
@@ -20,10 +21,23 @@ func NewStockRepository() StockRepository {
 	return &StockRepositoryImpl{}
 }
 
+// Insert stock to database
 func (repository *StockRepositoryImpl) Save(ctx context.Context, stock entity.Stock) error {
 	db := configs.GetDatabaseInstance()
 	err := db.WithContext(ctx).Create(&stock).Error
 	return err
+}
+
+// Insert batch of stocks for efficiency
+func (repository *StockRepositoryImpl) SaveBatch(ctx context.Context, stocks []entity.Stock) error {
+	if len(stocks) == 0 {
+		return nil
+	}
+
+	db := configs.GetDatabaseInstance()
+
+	// GORM batch insert
+	return db.WithContext(ctx).CreateInBatches(stocks, 1000).Error
 }
 
 func (repository *StockRepositoryImpl) FindByUnderwriter(ctx context.Context, underwriter string) ([]response.StockResponse, error) {

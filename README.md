@@ -21,7 +21,7 @@ This program allows users to export a CSV file containing the information of IPO
 
 ### Database Setup
 1. Create database using the commands in `StokDatabase.sql`.
-2. Check the `.env` file and set the `DB_SOURCE` based on user setting with format `user:password@tcp(host:port)/databaseName?parseTime=true`.
+2. Create a .env file based on the .env.example file and configure the environment variables accordingly.
    ![image](https://github.com/RichSvK/IPO_Stock/assets/87809864/4e3df8b3-d905-4d16-a95d-114407bd042c)
 
 ### Program Flow

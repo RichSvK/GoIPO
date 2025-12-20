@@ -2,9 +2,11 @@ package services
 
 import (
 	"IPO/helpers"
+	"IPO/models/entity"
 	"IPO/repository"
 	"bufio"
 	"context"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -37,6 +39,7 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 		fmt.Println(err.Error())
 		return
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			fmt.Println("Error closing file:", err)
@@ -44,32 +47,68 @@ func (service *StockServiceImpl) InsertStock(fileName string) {
 	}()
 
 	reader := bufio.NewReader(file)
+	csvReader := csv.NewReader(reader)
+	csvReader.FieldsPerRecord = -1
 
-	// Remove Header
-	_, _, err = reader.ReadLine()
-	if err != nil {
-		fmt.Println(err.Error())
+	// Read & ignore header
+	if _, err := csvReader.Read(); err != nil {
+		if err == io.EOF {
+			fmt.Println("File is empty")
+			return
+		}
+		fmt.Println("Error reading header:", err)
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	const batchSize = 1000
+	stocks := make([]entity.Stock, 0, batchSize)
+	lineNumber := 1
+	successCount := 0
+	errorCount := 0
+
+	// Create a context with timeout for database operations with 30 seconds limit since batch inserts can take longer
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	for {
-		result, _, err := reader.ReadLine()
+		record, err := csvReader.Read()
 		if err == io.EOF {
+			// Insert remaining records
+			if len(stocks) > 0 {
+				if err := service.Stock_Repository.SaveBatch(ctx, stocks); err != nil {
+					fmt.Printf("Error inserting final batch: %v\n", err)
+					errorCount += len(stocks)
+				} else {
+					successCount += len(stocks)
+				}
+			}
 			break
 		}
-
-		stock := helpers.SplitStockString(result)
-
-		err = service.Stock_Repository.Save(ctx, stock)
 		if err != nil {
-			fmt.Println("Error insert stock data")
-			return
+			fmt.Printf("CSV read error at line %d: %v\n", lineNumber+1, err)
+			errorCount++
+			lineNumber++
+			continue
+		}
+		lineNumber++
+
+		// Parse the stock data
+		stock := helpers.SplitStockString(record)
+		stocks = append(stocks, stock)
+
+		// Insert batch of stocks when it reaches batchSize
+		if len(stocks) >= batchSize {
+			if err := service.Stock_Repository.SaveBatch(ctx, stocks); err != nil {
+				fmt.Printf("Error inserting batch at line %d: %v\n", lineNumber, err)
+				errorCount += len(stocks)
+			} else {
+				successCount += len(stocks)
+			}
+			stocks = stocks[:0]
 		}
 	}
-	fmt.Println("Success Insert Data")
+
+	fmt.Printf("Insert completed: %d successful, %d errors\n", successCount, errorCount)
 }
 
 func (service *StockServiceImpl) ExportByUnderwriter(underwriter string) {
